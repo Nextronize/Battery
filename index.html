@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Battery Status</title>
+  <style>
+    .battery-container {
+      width: 120px;
+      height: 60px;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .battery-level {
+      width: 80%;
+      height: 80%;
+      background-color: #ccc;
+    }
+    
+    .battery-level::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 10px;
+      background-color: #fff;
+      top: 50%;
+      right: -11px;
+      transform: translateY(-50%);
+    }
+    
+    .battery-level::before {
+      content: attr(data-level);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+    }
+    
+    .battery-status {
+      margin-top: 20px;
+    }
+  </style>
+  <script>
+    function updateBatteryStatus() {
+      var battery = navigator.battery || navigator.webkitBattery || navigator.mozBattery;
+      if (!battery) {
+        document.getElementById("battery-status").innerHTML = "Battery status is not supported in this browser.";
+        return;
+      }
+      
+      var batteryLevel = Math.floor(battery.level * 100);
+      var batteryStatus = battery.charging ? "Charging" : "Discharging";
+      
+      var batteryLevelElement = document.getElementById("battery-level");
+      batteryLevelElement.style.height = batteryLevel + "%";
+      batteryLevelElement.setAttribute("data-level", batteryLevel + "%");
+      
+      var batteryStatusElement = document.getElementById("battery-status");
+      batteryStatusElement.innerHTML = "Battery Level: " + batteryLevel + "%<br>Charging Status: " + batteryStatus;
+    }
+    
+    window.onload = function() {
+      updateBatteryStatus();
+      
+      navigator.getBattery().then(function(battery) {
+        battery.addEventListener("levelchange", updateBatteryStatus);
+        battery.addEventListener("chargingchange", updateBatteryStatus);
+      });
+    };
+  </script>
+</head>
+<body>
+  <h1>Battery Status</h1>
+  
+  <div class="battery-container">
+    <div class="battery-level" id="battery-level" data-level=""></div>
+  </div>
+  
+  <div class="battery-status" id="battery-status"></div>
+</body>
+</html>
